@@ -201,7 +201,7 @@ void cambiendht11() {
     //Serial.println("Không có giá trị trả về từ cảm biến DHT");
     return;
   }
-  if (doC>39) {
+  if (doC>50) {
     digitalWrite(output_relay1, 0);
 digitalWrite(output_relay2, 0);
 relay1_state=0;
