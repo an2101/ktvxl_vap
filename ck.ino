@@ -20,6 +20,9 @@ int button = 2;
 #define VPIN_1 V1
 #define VPIN_2 V2
 #define VPIN_3 V3
+#define VPIN_4 V4
+#define VPIN_5 V5
+#define VPIN_6 V6
 //------------------------------------------------------
 
 float doam;
@@ -56,7 +59,10 @@ char auth[] = BLYNK_AUTH_TOKEN;
 char ssid[32] = "";
 char pass[32] = "";
 //
-
+unsigned long ledOffTime = 0;
+int delayTime1=0;
+int delayTime2=0;
+int delayTime3=0;
 void setup() 
 {   
 Wire.begin(sda_oled, scl_oled);
@@ -147,6 +153,36 @@ relay2_state = param.asInt();
 digitalWrite(output_relay2, relay2_state);
 
 } 
+// Hàm Blynk để hẹn giờ tắt LED
+BLYNK_WRITE(VPIN_4) {  // V1 là nút trên Blynk app
+  delayTime1 = param.asInt();  // Lấy giá trị từ slider trong Blynk (giới hạn từ 0-3600 giây)
+
+  // Nếu giá trị delayTime > 0, bật LED và bắt đầu hẹn giờ
+  if (delayTime1 > 0) {
+    
+    ledOffTime = millis() + delayTime1 * 1000 * 60 * 60 + delayTime2 * 1000 * 60 + delayTime3 * 1000;  // Cập nhật thời gian tắt LED
+  } 
+}
+// Hàm Blynk để hẹn giờ tắt LED
+BLYNK_WRITE(VPIN_5) {  // V1 là nút trên Blynk app
+  delayTime2 = param.asInt();  // Lấy giá trị từ slider trong Blynk (giới hạn từ 0-3600 giây)
+
+  // Nếu giá trị delayTime > 0, bật LED và bắt đầu hẹn giờ
+  if (delayTime2 > 0) {
+    
+    ledOffTime = millis() + delayTime1 * 1000 * 60 * 60 + delayTime2 * 1000 * 60 + delayTime3 * 1000;  // Cập nhật thời gian tắt LED
+  } 
+}
+// Hàm Blynk để hẹn giờ tắt LED
+BLYNK_WRITE(VPIN_6) {  // V1 là nút trên Blynk app
+  delayTime3 = param.asInt();  // Lấy giá trị từ slider trong Blynk (giới hạn từ 0-3600 giây)
+
+  // Nếu giá trị delayTime > 0, bật LED và bắt đầu hẹn giờ
+  if (delayTime3 > 0) {
+    
+    ledOffTime = millis() + delayTime1 * 1000 * 60 * 60 + delayTime2 * 1000 * 60 + delayTime3 * 1000;  // Cập nhật thời gian tắt LED
+  } 
+}
 void loop() 
 { 
   if (WiFi.status() == WL_CONNECTED) {
@@ -184,6 +220,16 @@ Blynk.run();
   
   wm.resetSettings();
   ESP.restart();
+  }
+   //Kiểm tra thời gian hẹn giờ để tắt LED
+  if (millis() >= ledOffTime && ledOffTime > 0) {
+    digitalWrite(output_relay1, 0);
+digitalWrite(output_relay2, 0);
+Blynk.virtualWrite(VPIN_2, 0);
+Blynk.virtualWrite(VPIN_3, 0);
+relay1_state=0;
+relay2_state=0;
+    ledOffTime = 0;  // Reset thời gian hẹn giờ
   }
 }
 
